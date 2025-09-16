@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"auratravel-backend/internal/config"
-	"auratravel-backend/internal/database"
 	"auratravel-backend/internal/routes"
 	"auratravel-backend/internal/services"
 
@@ -45,13 +44,7 @@ func main() {
 	// Initialize configuration
 	cfg := config.GetConfig()
 
-	// Initialize database
-	if err := database.Initialize(); err != nil {
-		log.Printf("Warning: Failed to initialize database: %v", err)
-		log.Println("Server will continue without database connection...")
-	}
-
-	// Initialize services (for future use)
+	// Initialize services (Firebase, AI, etc.)
 	services, err := services.NewServices()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize services: %v", err)

@@ -48,16 +48,34 @@ func (h *TripHandler) CreateTrip(c *gin.Context) {
 		return
 	}
 
-	// Create trip model (mock fields only)
 	trip := &models.Trip{
 		ID:          time.Now().Format("20060102150405"),
-		UserID:      "mock-user-id",
+		UserID:      "mock-user-id", // TODO: Replace with actual user ID from context
 		Destination: req.Destination,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
 		TotalBudget: req.TotalBudget,
 		Travelers:   req.Travelers,
 		Status:      "planning",
+		CreatedAt:   time.Now(),
+	}
+
+	tripData := services.TripData{
+		ID:          trip.ID,
+		UserID:      trip.UserID,
+		Destination: trip.Destination,
+		StartDate:   trip.StartDate,
+		EndDate:     trip.EndDate,
+		Status:      trip.Status,
+		Budget:      trip.TotalBudget,
+		Travelers:   trip.Travelers,
+		CreatedAt:   trip.CreatedAt,
+	}
+	fb := h.services.Firebase
+	ctx := c.Request.Context()
+	if err := fb.SaveTrip(ctx, tripData); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create trip in Firestore"})
+		return
 	}
 
 	// Generate AI-powered itinerary using Gemini (mock)
@@ -72,7 +90,6 @@ func (h *TripHandler) CreateTrip(c *gin.Context) {
 		log.Printf("Failed to generate itinerary: %v", err)
 	}
 
-	// VertexAI and BigQuery mock responses (since methods do not exist)
 	insights := map[string]interface{}{"insight": "Mock destination insights"}
 	budgetAnalysis := map[string]interface{}{"budget": "Mock budget analysis"}
 
@@ -89,32 +106,29 @@ func (h *TripHandler) CreateTrip(c *gin.Context) {
 func (h *TripHandler) GetTrips(c *gin.Context) {
 	// (userID, exists) removed: mock data does not use them
 
-	// Mock trips data - replace with actual database query
-	trips := []models.Trip{
-		{
-			ID:          "1",
-			UserID:      "mock-user-id",
-			Destination: "Paris, France",
-			StartDate:   time.Now().AddDate(0, 1, 0),
-			EndDate:     time.Now().AddDate(0, 1, 7),
-			TotalBudget: 3000.0,
-			Travelers:   2,
-			Status:      "confirmed",
-			CreatedAt:   time.Now().AddDate(0, 0, -7),
-		},
-		{
-			ID:          "2",
-			UserID:      "mock-user-id",
-			Destination: "Tokyo, Japan",
-			StartDate:   time.Now().AddDate(0, 2, 0),
-			EndDate:     time.Now().AddDate(0, 2, 10),
-			TotalBudget: 4500.0,
-			Travelers:   1,
-			Status:      "planning",
-			CreatedAt:   time.Now().AddDate(0, 0, -2),
-		},
+	fb := h.services.Firebase
+	ctx := c.Request.Context()
+	userID := "mock-user-id" // TODO: Replace with actual user ID from context
+	tripDatas, err := fb.GetUserTrips(ctx, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch trips from Firestore"})
+		return
 	}
-
+	trips := make([]models.Trip, 0, len(tripDatas))
+	for _, td := range tripDatas {
+		trips = append(trips, models.Trip{
+			ID:          td.ID,
+			UserID:      td.UserID,
+			Destination: td.Destination,
+			StartDate:   toTime(td.StartDate),
+			EndDate:     toTime(td.EndDate),
+			Status:      td.Status,
+			TotalBudget: td.Budget,
+			Travelers:   td.Travelers,
+			CreatedAt:   toTime(td.CreatedAt),
+			UpdatedAt:   toTime(td.UpdatedAt),
+		})
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"trips": trips,
 		"total": len(trips),
@@ -126,23 +140,28 @@ func (h *TripHandler) GetTrip(c *gin.Context) {
 	// (userID, exists, id) removed: mock data does not use them
 	tripID := c.Param("id")
 
-	// Mock trip data - replace with actual database query
-	trip := &models.Trip{
-		ID:          tripID,
-		UserID:      "mock-user-id",
-		Destination: "Paris, France",
-		StartDate:   time.Now().AddDate(0, 1, 0),
-		EndDate:     time.Now().AddDate(0, 1, 7),
-		TotalBudget: 3000.0,
-		Travelers:   2,
-		Status:      "confirmed",
-		CreatedAt:   time.Now().AddDate(0, 0, -7),
+	fb := h.services.Firebase
+	ctx := c.Request.Context()
+	td, err := fb.GetTrip(ctx, tripID)
+	if err != nil || td == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Trip not found"})
+		return
 	}
-
+	trip := models.Trip{
+		ID:          td.ID,
+		UserID:      td.UserID,
+		Destination: td.Destination,
+		StartDate:   toTime(td.StartDate),
+		EndDate:     toTime(td.EndDate),
+		Status:      td.Status,
+		TotalBudget: td.Budget,
+		Travelers:   td.Travelers,
+		CreatedAt:   toTime(td.CreatedAt),
+		UpdatedAt:   toTime(td.UpdatedAt),
+	}
 	// Mock recommendations and visual insights
 	recommendations := []string{"Mock recommendation 1", "Mock recommendation 2"}
 	visualInsights := map[string]interface{}{"insight": "Mock visual insight"}
-
 	c.JSON(http.StatusOK, gin.H{
 		"trip":            trip,
 		"recommendations": recommendations,
@@ -161,20 +180,21 @@ func (h *TripHandler) UpdateTrip(c *gin.Context) {
 		return
 	}
 
-	// Mock update - replace with actual database update
-	updatedTrip := &models.Trip{
-		ID:          tripID,
-		UserID:      "mock-user-id",
-		Destination: req.Destination,
-		StartDate:   req.StartDate,
-		EndDate:     req.EndDate,
-		TotalBudget: req.TotalBudget,
-		Travelers:   req.Travelers,
-		Status:      "updated",
-		UpdatedAt:   time.Now(),
+	fb := h.services.Firebase
+	ctx := c.Request.Context()
+	updates := map[string]interface{}{
+		"destination": req.Destination,
+		"start_date":  req.StartDate,
+		"end_date":    req.EndDate,
+		"budget":      req.TotalBudget,
+		"travelers":   req.Travelers,
+		"status":      "updated",
+		"updated_at":  time.Now(),
 	}
-
-	// Regenerate itinerary with updated preferences (mock)
+	if err := fb.UpdateTrip(ctx, tripID, updates); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update trip in Firestore"})
+		return
+	}
 	newItinerary, err := h.services.Gemini.GenerateItinerary(c, services.ItineraryRequest{
 		Destination: req.Destination,
 		StartDate:   req.StartDate.Format("2006-01-02"),
@@ -185,10 +205,9 @@ func (h *TripHandler) UpdateTrip(c *gin.Context) {
 	if err != nil {
 		log.Printf("Failed to regenerate itinerary: %v", err)
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message":       "Trip updated successfully",
-		"trip":          updatedTrip,
+		"trip":          updates,
 		"new_itinerary": newItinerary,
 	})
 }
@@ -197,13 +216,29 @@ func (h *TripHandler) UpdateTrip(c *gin.Context) {
 func (h *TripHandler) DeleteTrip(c *gin.Context) {
 	// (userID, exists, id) removed: mock data does not use them
 	tripID := c.Param("id")
-	// Mock deletion - replace with actual database deletion
-	log.Printf("Deleting trip %s", tripID)
-
+	fb := h.services.Firebase
+	ctx := c.Request.Context()
+	if err := fb.DeleteTrip(ctx, tripID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete trip from Firestore"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Trip deleted successfully",
 		"trip_id": tripID,
 	})
+}
+
+// toTime safely converts Firestore timestamp/interface{} to time.Time
+func toTime(val interface{}) time.Time {
+	switch t := val.(type) {
+	case time.Time:
+		return t
+	case *time.Time:
+		if t != nil {
+			return *t
+		}
+	}
+	return time.Time{}
 }
 
 // GenerateRecommendations generates AI-powered recommendations for a destination

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"auratravel-backend/internal/models"
 	"auratravel-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
@@ -101,54 +100,35 @@ func (h *AITripHandler) PlanTrip(c *gin.Context) {
 		suggestions = h.getBasicSuggestions(req.Destination)
 	}
 
-	// Create trip in database
+	// Create trip in Firestore only
 	tripID := uuid.New().String()
-	trip := models.Trip{
+	trip := services.TripData{
 		ID:          tripID,
 		UserID:      req.UserID,
 		Title:       fmt.Sprintf("AI Trip to %s", req.Destination),
 		Destination: req.Destination,
 		StartDate:   h.parseDate(req.StartDate),
 		EndDate:     h.parseDate(req.EndDate),
-		TotalBudget: req.Budget,
-		Travelers:   req.Travelers,
 		Status:      "planned",
+		Itinerary:   itinerary,
+		Budget:      req.Budget,
+		Travelers:   req.Travelers,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-
-	if err := h.services.DB.Create(&trip).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save trip"})
-		return
-	}
-
-	// Save to Firebase if available
 	if h.services.Firebase != nil {
-		firebaseTrip := services.TripData{
-			ID:          tripID,
-			UserID:      req.UserID,
-			Title:       trip.Title,
-			Destination: req.Destination,
-			StartDate:   trip.StartDate,
-			EndDate:     trip.EndDate,
-			Status:      "planned",
-			Itinerary:   itinerary,
-			Budget:      req.Budget,
-			Travelers:   req.Travelers,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+		if err := h.services.Firebase.SaveTrip(ctx, trip); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save trip to Firestore"})
+			return
 		}
-		h.services.Firebase.SaveTrip(ctx, firebaseTrip)
 	}
 
-	// Calculate budget breakdown
 	budget := h.calculateBudgetBreakdown(req.Budget, req.Travelers)
 
 	response := PlanTripResponse{
 		TripID:      tripID,
 		Title:       trip.Title,
 		Description: fmt.Sprintf("AI-powered %d-day trip to %s", h.calculateDays(req.StartDate, req.EndDate), req.Destination),
-		Itinerary:   itinerary,
 		Budget:      budget,
 		Suggestions: suggestions,
 		CreatedAt:   time.Now(),
@@ -223,11 +203,13 @@ func (h *AITripHandler) OptimizeItinerary(c *gin.Context) {
 
 	ctx := context.Background()
 
-	// Get existing trip
-	var trip models.Trip
-	if err := h.services.DB.First(&trip, "id = ?", tripID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Trip not found"})
-		return
+	// Get existing trip from Firestore
+	if h.services.Firebase != nil {
+		t, err := h.services.Firebase.GetTrip(ctx, tripID)
+		if err != nil || t == nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Trip not found"})
+			return
+		}
 	}
 
 	// Optimize using Vertex AI

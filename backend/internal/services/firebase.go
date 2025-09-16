@@ -7,6 +7,8 @@ import (
 
 	"auratravel-backend/internal/config"
 
+	"time"
+
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -67,6 +69,15 @@ type UserProfile struct {
 	UID               string                 `firestore:"uid"`
 	Email             string                 `firestore:"email"`
 	DisplayName       string                 `firestore:"display_name"`
+	FirstName         string                 `firestore:"first_name"`
+	LastName          string                 `firestore:"last_name"`
+	PhoneNumber       string                 `firestore:"phone_number"`
+	PreferredCurrency string                 `firestore:"preferred_currency"`
+	PreferredLanguage string                 `firestore:"preferred_language"`
+	DateOfBirth       *time.Time             `firestore:"date_of_birth"`
+	Nationality       string                 `firestore:"nationality"`
+	EmailVerified     bool                   `firestore:"email_verified"`
+	IsActive          bool                   `firestore:"is_active"`
 	PhotoURL          string                 `firestore:"photo_url"`
 	TravelPreferences map[string]interface{} `firestore:"travel_preferences"`
 	TripHistory       []string               `firestore:"trip_history"`

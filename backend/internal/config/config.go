@@ -10,15 +10,6 @@ type Config struct {
 	Environment string
 	Port        string
 
-	// Database Configuration
-	DatabaseURL      string
-	DatabaseHost     string
-	DatabasePort     string
-	DatabaseUser     string
-	DatabasePassword string
-	DatabaseName     string
-	DatabaseSSLMode  string
-
 	// Google Cloud Configuration
 	GoogleCloudProjectID         string
 	GoogleCloudRegion            string
@@ -56,15 +47,6 @@ func Load() *Config {
 		// Server
 		Environment: getEnv("ENVIRONMENT", "development"),
 		Port:        getEnv("PORT", "8080"),
-
-		// Database
-		DatabaseURL:      getEnv("DATABASE_URL", ""),
-		DatabaseHost:     getEnv("DB_HOST", "localhost"),
-		DatabasePort:     getEnv("DB_PORT", "5432"),
-		DatabaseUser:     getEnv("DB_USER", "postgres"),
-		DatabasePassword: getEnv("DB_PASSWORD", ""),
-		DatabaseName:     getEnv("DB_NAME", "auratravel"),
-		DatabaseSSLMode:  getEnv("DB_SSL_MODE", "disable"),
 
 		// Google Cloud
 		GoogleCloudProjectID:         getEnv("GOOGLE_CLOUD_PROJECT_ID", ""),

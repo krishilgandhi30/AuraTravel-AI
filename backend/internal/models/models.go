@@ -6,19 +6,19 @@ import (
 
 // User represents a user in the system
 type User struct {
-	ID                string     `json:"id" gorm:"primaryKey"`
-	Email             string     `json:"email" gorm:"uniqueIndex;not null"`
+	ID                string     `json:"id"`
+	Email             string     `json:"email"`
 	DisplayName       string     `json:"display_name"`
 	PhotoURL          string     `json:"photo_url"`
-	EmailVerified     bool       `json:"email_verified" gorm:"default:false"`
+	EmailVerified     bool       `json:"email_verified"`
 	PhoneNumber       string     `json:"phone_number"`
 	FirstName         string     `json:"first_name"`
 	LastName          string     `json:"last_name"`
 	DateOfBirth       *time.Time `json:"date_of_birth"`
 	Nationality       string     `json:"nationality"`
-	PreferredCurrency string     `json:"preferred_currency" gorm:"default:'USD'"`
-	PreferredLanguage string     `json:"preferred_language" gorm:"default:'en'"`
-	IsActive          bool       `json:"is_active" gorm:"default:true"`
+	PreferredCurrency string     `json:"preferred_currency"`
+	PreferredLanguage string     `json:"preferred_language"`
+	IsActive          bool       `json:"is_active"`
 	LastLoginAt       *time.Time `json:"last_login_at"`
 	CreatedAt         time.Time  `json:"created_at"`
 	UpdatedAt         time.Time  `json:"updated_at"`
@@ -26,37 +26,37 @@ type User struct {
 
 // TravelPreferences stores user's travel preferences
 type TravelPreferences struct {
-	ID                   uint                 `json:"id" gorm:"primaryKey"`
-	UserID               string               `json:"user_id" gorm:"not null"`
+	ID                   uint                 `json:"id"`
+	UserID               string               `json:"user_id"`
 	BudgetRange          string               `json:"budget_range"`
-	TravelStyles         []string             `json:"travel_styles" gorm:"type:text[]"`
-	Interests            []string             `json:"interests" gorm:"type:text[]"`
-	AccommodationTypes   []string             `json:"accommodation_types" gorm:"type:text[]"`
-	TransportationModes  []string             `json:"transportation_modes" gorm:"type:text[]"`
-	FoodPreferences      []string             `json:"food_preferences" gorm:"type:text[]"`
-	AccessibilityNeeds   []string             `json:"accessibility_needs" gorm:"type:text[]"`
-	NotificationSettings NotificationSettings `json:"notification_settings" gorm:"embedded"`
+	TravelStyles         []string             `json:"travel_styles"`
+	Interests            []string             `json:"interests"`
+	AccommodationTypes   []string             `json:"accommodation_types"`
+	TransportationModes  []string             `json:"transportation_modes"`
+	FoodPreferences      []string             `json:"food_preferences"`
+	AccessibilityNeeds   []string             `json:"accessibility_needs"`
+	NotificationSettings NotificationSettings `json:"notification_settings"`
 	CreatedAt            time.Time            `json:"created_at"`
 	UpdatedAt            time.Time            `json:"updated_at"`
 }
 
 // NotificationSettings for user preferences
 type NotificationSettings struct {
-	Email           bool `json:"email" gorm:"default:true"`
-	SMS             bool `json:"sms" gorm:"default:false"`
-	Push            bool `json:"push" gorm:"default:true"`
-	TripReminders   bool `json:"trip_reminders" gorm:"default:true"`
-	PriceAlerts     bool `json:"price_alerts" gorm:"default:true"`
-	Recommendations bool `json:"recommendations" gorm:"default:true"`
+	Email           bool `json:"email"`
+	SMS             bool `json:"sms"`
+	Push            bool `json:"push"`
+	TripReminders   bool `json:"trip_reminders"`
+	PriceAlerts     bool `json:"price_alerts"`
+	Recommendations bool `json:"recommendations"`
 }
 
 // EmergencyContact stores emergency contact information
 type EmergencyContact struct {
-	ID           uint      `json:"id" gorm:"primaryKey"`
-	UserID       string    `json:"user_id" gorm:"not null"`
-	Name         string    `json:"name" gorm:"not null"`
+	ID           uint      `json:"id"`
+	UserID       string    `json:"user_id"`
+	Name         string    `json:"name"`
 	Relationship string    `json:"relationship"`
-	Phone        string    `json:"phone" gorm:"not null"`
+	Phone        string    `json:"phone"`
 	Email        string    `json:"email"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
@@ -64,33 +64,33 @@ type EmergencyContact struct {
 
 // Trip represents a travel trip
 type Trip struct {
-	ID          string    `json:"id" gorm:"primaryKey"`
-	UserID      string    `json:"user_id" gorm:"not null"`
-	Title       string    `json:"title" gorm:"not null"`
+	ID          string    `json:"id"`
+	UserID      string    `json:"user_id"`
+	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Destination string    `json:"destination" gorm:"not null"`
+	Destination string    `json:"destination"`
 	StartDate   time.Time `json:"start_date"`
 	EndDate     time.Time `json:"end_date"`
-	Status      string    `json:"status" gorm:"default:'draft'"` // draft, planned, ongoing, completed, cancelled
-	Travelers   int       `json:"travelers" gorm:"default:1"`
+	Status      string    `json:"status"` // draft, planned, ongoing, completed, cancelled
+	Travelers   int       `json:"travelers"`
 	TotalBudget float64   `json:"total_budget"`
-	Currency    string    `json:"currency" gorm:"default:'USD'"`
-	IsPublic    bool      `json:"is_public" gorm:"default:false"`
-	ShareCode   string    `json:"share_code" gorm:"uniqueIndex"`
+	Currency    string    `json:"currency"`
+	IsPublic    bool      `json:"is_public"`
+	ShareCode   string    `json:"share_code"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // TripPreferences stores preferences specific to a trip
 type TripPreferences struct {
-	ID                 uint      `json:"id" gorm:"primaryKey"`
-	TripID             string    `json:"trip_id" gorm:"not null"`
-	TravelStyles       []string  `json:"travel_styles" gorm:"type:text[]"`
-	Interests          []string  `json:"interests" gorm:"type:text[]"`
+	ID                 uint      `json:"id"`
+	TripID             string    `json:"trip_id"`
+	TravelStyles       []string  `json:"travel_styles"`
+	Interests          []string  `json:"interests"`
 	AccommodationType  string    `json:"accommodation_type"`
 	TransportationType string    `json:"transportation_type"`
-	FoodPreferences    []string  `json:"food_preferences" gorm:"type:text[]"`
-	AccessibilityNeeds []string  `json:"accessibility_needs" gorm:"type:text[]"`
+	FoodPreferences    []string  `json:"food_preferences"`
+	AccessibilityNeeds []string  `json:"accessibility_needs"`
 	AdditionalRequests string    `json:"additional_requests"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
@@ -98,10 +98,10 @@ type TripPreferences struct {
 
 // TripCollaborator represents users who can collaborate on a trip
 type TripCollaborator struct {
-	ID         uint       `json:"id" gorm:"primaryKey"`
-	TripID     string     `json:"trip_id" gorm:"not null"`
-	UserID     string     `json:"user_id" gorm:"not null"`
-	Role       string     `json:"role" gorm:"default:'viewer'"` // owner, editor, viewer
+	ID         uint       `json:"id"`
+	TripID     string     `json:"trip_id"`
+	UserID     string     `json:"user_id"`
+	Role       string     `json:"role"` // owner, editor, viewer
 	InvitedBy  string     `json:"invited_by"`
 	InvitedAt  time.Time  `json:"invited_at"`
 	AcceptedAt *time.Time `json:"accepted_at"`
@@ -111,11 +111,11 @@ type TripCollaborator struct {
 
 // Itinerary represents a trip's detailed itinerary
 type Itinerary struct {
-	ID                string     `json:"id" gorm:"primaryKey"`
-	TripID            string     `json:"trip_id" gorm:"not null;uniqueIndex"`
+	ID                string     `json:"id"`
+	TripID            string     `json:"trip_id"`
 	TotalActivities   int        `json:"total_activities"`
 	EstimatedCost     float64    `json:"estimated_cost"`
-	Currency          string     `json:"currency" gorm:"default:'USD'"`
+	Currency          string     `json:"currency"`
 	GeneratedBy       string     `json:"generated_by"` // ai, manual
 	GeneratedAt       time.Time  `json:"generated_at"`
 	LastOptimizedAt   *time.Time `json:"last_optimized_at"`
@@ -126,10 +126,10 @@ type Itinerary struct {
 
 // DayPlan represents a single day's plan in an itinerary
 type DayPlan struct {
-	ID            string    `json:"id" gorm:"primaryKey"`
-	ItineraryID   string    `json:"itinerary_id" gorm:"not null"`
-	Date          time.Time `json:"date" gorm:"not null"`
-	DayNumber     int       `json:"day_number" gorm:"not null"`
+	ID            string    `json:"id"`
+	ItineraryID   string    `json:"itinerary_id"`
+	Date          time.Time `json:"date"`
+	DayNumber     int       `json:"day_number"`
 	Title         string    `json:"title"`
 	Description   string    `json:"description"`
 	TotalCost     float64   `json:"total_cost"`
@@ -141,27 +141,27 @@ type DayPlan struct {
 
 // Activity represents a travel activity
 type Activity struct {
-	ID              string     `json:"id" gorm:"primaryKey"`
+	ID              string     `json:"id"`
 	TripID          string     `json:"trip_id"`
 	DayPlanID       *string    `json:"day_plan_id"`
-	Name            string     `json:"name" gorm:"not null"`
+	Name            string     `json:"name"`
 	Description     string     `json:"description"`
 	Type            string     `json:"type"` // sightseeing, museum, adventure, cultural, etc.
-	Location        Location   `json:"location" gorm:"embedded;embeddedPrefix:location_"`
+	Location        Location   `json:"location"`
 	Duration        int        `json:"duration"` // in minutes
 	Cost            float64    `json:"cost"`
-	Currency        string     `json:"currency" gorm:"default:'USD'"`
+	Currency        string     `json:"currency"`
 	Rating          float64    `json:"rating"`
 	BookingRequired bool       `json:"booking_required"`
 	BookingURL      string     `json:"booking_url"`
 	OpeningHours    string     `json:"opening_hours"` // JSON string
-	Tips            []string   `json:"tips" gorm:"type:text[]"`
-	Images          []string   `json:"images" gorm:"type:text[]"`
-	Tags            []string   `json:"tags" gorm:"type:text[]"`
+	Tips            []string   `json:"tips"`
+	Images          []string   `json:"images"`
+	Tags            []string   `json:"tags"`
 	ScheduledTime   *time.Time `json:"scheduled_time"`
-	Priority        int        `json:"priority" gorm:"default:0"`
-	Status          string     `json:"status" gorm:"default:'planned'"` // planned, booked, completed, skipped
-	Source          string     `json:"source"`                          // ai, manual, api
+	Priority        int        `json:"priority"`
+	Status          string     `json:"status"` // planned, booked, completed, skipped
+	Source          string     `json:"source"` // ai, manual, api
 	ExternalID      string     `json:"external_id"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
@@ -169,20 +169,20 @@ type Activity struct {
 
 // Meal represents a dining experience
 type Meal struct {
-	ID                  string     `json:"id" gorm:"primaryKey"`
-	DayPlanID           string     `json:"day_plan_id" gorm:"not null"`
-	Name                string     `json:"name" gorm:"not null"`
+	ID                  string     `json:"id"`
+	DayPlanID           string     `json:"day_plan_id"`
+	Name                string     `json:"name"`
 	Type                string     `json:"type"` // breakfast, lunch, dinner, snack
-	Location            Location   `json:"location" gorm:"embedded;embeddedPrefix:location_"`
+	Location            Location   `json:"location"`
 	Cuisine             string     `json:"cuisine"`
 	Cost                float64    `json:"cost"`
-	Currency            string     `json:"currency" gorm:"default:'USD'"`
+	Currency            string     `json:"currency"`
 	Rating              float64    `json:"rating"`
 	ReservationRequired bool       `json:"reservation_required"`
-	DietaryOptions      []string   `json:"dietary_options" gorm:"type:text[]"`
+	DietaryOptions      []string   `json:"dietary_options"`
 	ScheduledTime       *time.Time `json:"scheduled_time"`
 	BookingURL          string     `json:"booking_url"`
-	Images              []string   `json:"images" gorm:"type:text[]"`
+	Images              []string   `json:"images"`
 	Source              string     `json:"source"` // ai, manual, api
 	ExternalID          string     `json:"external_id"`
 	CreatedAt           time.Time  `json:"created_at"`
@@ -191,27 +191,27 @@ type Meal struct {
 
 // Accommodation represents lodging
 type Accommodation struct {
-	ID                 string     `json:"id" gorm:"primaryKey"`
+	ID                 string     `json:"id"`
 	TripID             string     `json:"trip_id"`
 	DayPlanID          *string    `json:"day_plan_id"`
-	Name               string     `json:"name" gorm:"not null"`
+	Name               string     `json:"name"`
 	Type               string     `json:"type"` // hotel, resort, apartment, hostel, villa, boutique
-	Location           Location   `json:"location" gorm:"embedded;embeddedPrefix:location_"`
+	Location           Location   `json:"location"`
 	PricePerNight      float64    `json:"price_per_night"`
-	Currency           string     `json:"currency" gorm:"default:'USD'"`
+	Currency           string     `json:"currency"`
 	TotalNights        int        `json:"total_nights"`
 	TotalCost          float64    `json:"total_cost"`
 	Rating             float64    `json:"rating"`
-	Amenities          []string   `json:"amenities" gorm:"type:text[]"`
-	Images             []string   `json:"images" gorm:"type:text[]"`
+	Amenities          []string   `json:"amenities"`
+	Images             []string   `json:"images"`
 	BookingURL         string     `json:"booking_url"`
 	CheckInTime        string     `json:"check_in_time"`
 	CheckOutTime       string     `json:"check_out_time"`
 	CheckInDate        *time.Time `json:"check_in_date"`
 	CheckOutDate       *time.Time `json:"check_out_date"`
 	CancellationPolicy string     `json:"cancellation_policy"`
-	Status             string     `json:"status" gorm:"default:'planned'"` // planned, booked, checked_in, checked_out
-	Source             string     `json:"source"`                          // ai, manual, api
+	Status             string     `json:"status"` // planned, booked, checked_in, checked_out
+	Source             string     `json:"source"` // ai, manual, api
 	ExternalID         string     `json:"external_id"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
@@ -219,25 +219,25 @@ type Accommodation struct {
 
 // Transportation represents travel transportation
 type Transportation struct {
-	ID            string     `json:"id" gorm:"primaryKey"`
+	ID            string     `json:"id"`
 	TripID        string     `json:"trip_id"`
 	DayPlanID     *string    `json:"day_plan_id"`
 	Type          string     `json:"type"` // flight, train, bus, car, taxi, metro, walk
-	FromLocation  Location   `json:"from_location" gorm:"embedded;embeddedPrefix:from_"`
-	ToLocation    Location   `json:"to_location" gorm:"embedded;embeddedPrefix:to_"`
+	FromLocation  Location   `json:"from_location"`
+	ToLocation    Location   `json:"to_location"`
 	Provider      string     `json:"provider"`
 	DepartureTime *time.Time `json:"departure_time"`
 	ArrivalTime   *time.Time `json:"arrival_time"`
 	Duration      int        `json:"duration"` // in minutes
 	Cost          float64    `json:"cost"`
-	Currency      string     `json:"currency" gorm:"default:'USD'"`
+	Currency      string     `json:"currency"`
 	BookingURL    string     `json:"booking_url"`
 	BookingRef    string     `json:"booking_ref"`
 	SeatNumber    string     `json:"seat_number"`
 	Class         string     `json:"class"`
 	Notes         string     `json:"notes"`
-	Status        string     `json:"status" gorm:"default:'planned'"` // planned, booked, completed
-	Source        string     `json:"source"`                          // ai, manual, api
+	Status        string     `json:"status"` // planned, booked, completed
+	Source        string     `json:"source"` // ai, manual, api
 	ExternalID    string     `json:"external_id"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
@@ -259,19 +259,19 @@ type Location struct {
 
 // Recommendation represents AI-generated recommendations
 type Recommendation struct {
-	ID           string     `json:"id" gorm:"primaryKey"`
+	ID           string     `json:"id"`
 	UserID       string     `json:"user_id"`
 	TripID       string     `json:"trip_id"`
 	Type         string     `json:"type"` // destination, activity, restaurant, accommodation
-	Title        string     `json:"title" gorm:"not null"`
+	Title        string     `json:"title"`
 	Description  string     `json:"description"`
-	Location     Location   `json:"location" gorm:"embedded;embeddedPrefix:location_"`
-	Images       []string   `json:"images" gorm:"type:text[]"`
+	Location     Location   `json:"location"`
+	Images       []string   `json:"images"`
 	Rating       float64    `json:"rating"`
 	Price        float64    `json:"price"`
-	Currency     string     `json:"currency" gorm:"default:'USD'"`
-	Tags         []string   `json:"tags" gorm:"type:text[]"`
-	Reasons      []string   `json:"reasons" gorm:"type:text[]"`
+	Currency     string     `json:"currency"`
+	Tags         []string   `json:"tags"`
+	Reasons      []string   `json:"reasons"`
 	Confidence   float64    `json:"confidence"`
 	Source       string     `json:"source"` // gemini, vertex_ai, manual
 	ModelVersion string     `json:"model_version"`
@@ -285,10 +285,10 @@ type Recommendation struct {
 
 // SearchHistory stores user search queries for analytics
 type SearchHistory struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
+	ID        uint      `json:"id"`
 	UserID    string    `json:"user_id"`
 	Query     string    `json:"query"`
-	Type      string    `json:"type"` // destination, activity, accommodation
+	Type      string    `json:"type"`    // destination, activity, accommodation
 	Filters   string    `json:"filters"` // JSON string of applied filters
 	Results   int       `json:"results"`
 	CreatedAt time.Time `json:"created_at"`
@@ -296,7 +296,7 @@ type SearchHistory struct {
 
 // AnalyticsEvent stores events for analytics
 type AnalyticsEvent struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
+	ID        uint      `json:"id"`
 	UserID    string    `json:"user_id"`
 	EventType string    `json:"event_type"`
 	EventData string    `json:"event_data"` // JSON string
@@ -307,11 +307,5 @@ type AnalyticsEvent struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// GetTableName returns the table name for GORM
-func (User) TableName() string             { return "users" }
-func (Trip) TableName() string             { return "trips" }
-func (Itinerary) TableName() string        { return "itineraries" }
-func (Activity) TableName() string         { return "activities" }
-func (Recommendation) TableName() string   { return "recommendations" }
 func (TravelPreferences) TableName() string { return "travel_preferences" }
-func (EmergencyContact) TableName() string { return "emergency_contacts" }
+func (EmergencyContact) TableName() string  { return "emergency_contacts" }

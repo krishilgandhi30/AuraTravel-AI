@@ -12,6 +12,7 @@ import (
 func SetupRoutes(router *gin.Engine, services *services.Services) {
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(services)
+	userHandler := handlers.NewUserHandler(services)
 	tripHandler := handlers.NewTripHandler(services)
 	aiTripHandler := handlers.NewAITripHandler(services)
 
@@ -55,8 +56,10 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 		// User profile routes
 		users := protected.Group("/users")
 		{
-			users.GET("/profile", authHandler.GetProfile)
-			users.PUT("/profile", authHandler.UpdateProfile)
+			users.POST("/register", userHandler.RegisterUser)
+			users.GET("/profile", userHandler.GetProfile)
+			users.PUT("/profile", userHandler.UpdateProfile)
+			users.DELETE("/profile", userHandler.DeleteAccount)
 		}
 
 		// Trip management routes
