@@ -17,6 +17,12 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 	aiTripHandler := handlers.NewAITripHandler(services)
 	vectorHandler := handlers.NewVectorHandler(services)
 
+	// Initialize new real-time handlers
+	notificationHandler := handlers.NewNotificationHandler(services)
+	replanningHandler := handlers.NewReplanningHandler(services)
+	deliveryHandler := handlers.NewDeliveryHandler(services)
+	localizationHandler := handlers.NewLocalizationHandler(services)
+
 	// Public routes
 	public := router.Group("/api/v1")
 	{
@@ -48,6 +54,15 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 		public.GET("/recommendations", aiTripHandler.GetRecommendations)
 		public.GET("/insights", aiTripHandler.GetTravelInsights)
 		public.POST("/analyze-image", aiTripHandler.AnalyzeImage)
+
+		// Public localization endpoints
+		localization := public.Group("/localization")
+		{
+			localization.GET("/locales", localizationHandler.GetSupportedLocales)
+			localization.GET("/prompts/:locale", localizationHandler.GetGeminiPrompt)
+			localization.POST("/format/currency/:locale", localizationHandler.FormatCurrency)
+			localization.POST("/format/datetime/:locale", localizationHandler.FormatDateTime)
+		}
 	}
 
 	// Protected routes
@@ -72,6 +87,28 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 			trips.PUT("/:id", tripHandler.UpdateTrip)
 			trips.DELETE("/:id", tripHandler.DeleteTrip)
 			trips.GET("/recommendations", tripHandler.GenerateRecommendations)
+
+			// Real-time trip features
+			trips.GET("/:tripId/status", func(c *gin.Context) {
+				// This would fetch real-time trip status
+				c.JSON(200, gin.H{
+					"tripStatus": gin.H{
+						"tripId":          c.Param("tripId"),
+						"status":          "active",
+						"progress":        65,
+						"currentActivity": "Visiting Red Fort",
+						"nextActivity":    "Lunch at Karim's",
+					},
+					"activeAlerts": 2,
+				})
+			})
+			trips.GET("/:tripId/monitoring-status", replanningHandler.GetMonitoringStatus)
+			trips.POST("/:tripId/start-monitoring", replanningHandler.StartMonitoring)
+			trips.POST("/:tripId/stop-monitoring", replanningHandler.StopMonitoring)
+			trips.POST("/dynamic-replan", replanningHandler.TriggerReplanning)
+			trips.POST("/:tripId/accept-replan", replanningHandler.AcceptReplanningOption)
+			trips.POST("/deliver", deliveryHandler.DeliverItinerary)
+			trips.GET("/:tripId/share", deliveryHandler.GenerateShareLink)
 		}
 
 		// AI-powered trip routes
@@ -116,5 +153,55 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 				c.JSON(200, gin.H{"message": "Get destination reviews endpoint - coming soon"})
 			})
 		}
+
+		// Real-time notification routes
+		notifications := protected.Group("/notifications")
+		{
+			notifications.POST("/register-device", notificationHandler.RegisterDevice)
+			notifications.POST("/send", notificationHandler.SendNotification)
+			notifications.POST("/weather-alert/:userId", notificationHandler.SendWeatherAlert)
+			notifications.POST("/trip-update/:userId", notificationHandler.SendTripUpdate)
+			notifications.GET("/user/:userId", notificationHandler.GetUserNotifications)
+		}
+
+		// Delivery routes
+		delivery := protected.Group("/delivery")
+		{
+			delivery.GET("/status/:deliveryId", deliveryHandler.GetDeliveryStatus)
+		}
+
+		// User localization preferences
+		userPrefs := protected.Group("/user")
+		{
+			userPrefs.POST("/language-preference", localizationHandler.SetUserLocalePreference)
+			userPrefs.GET("/:userId/language-preference", localizationHandler.GetUserLocalePreference)
+		}
+
+		// Content localization
+		localize := protected.Group("/localize")
+		{
+			localize.POST("/content", localizationHandler.LocalizeContent)
+		}
+
+		// QR Code generation route
+		protected.POST("/qr-code", func(c *gin.Context) {
+			var req struct {
+				URL  string `json:"url" binding:"required"`
+				Size int    `json:"size"`
+			}
+
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+
+			// QR code generation would go here
+			// For now, return a placeholder
+			c.JSON(200, gin.H{
+				"message": "QR code generation endpoint",
+				"url":     req.URL,
+				"size":    req.Size,
+			})
+		})
 	}
 }

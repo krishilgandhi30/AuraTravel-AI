@@ -12,6 +12,7 @@ import (
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
 )
 
@@ -20,6 +21,7 @@ type FirebaseService struct {
 	app       *firebase.App
 	auth      *auth.Client
 	firestore *firestore.Client
+	messaging *messaging.Client
 	cfg       *config.Config
 }
 
@@ -56,10 +58,19 @@ func NewFirebaseService() (*FirebaseService, error) {
 		return nil, fmt.Errorf("failed to initialize Firestore: %v", err)
 	}
 
+	// Initialize Messaging client
+	messagingClient, err := app.Messaging(ctx)
+	if err != nil {
+		log.Printf("Warning: Failed to initialize Firebase Messaging: %v", err)
+		// Continue without messaging for now
+		messagingClient = nil
+	}
+
 	return &FirebaseService{
 		app:       app,
 		auth:      authClient,
 		firestore: firestoreClient,
+		messaging: messagingClient,
 		cfg:       cfg,
 	}, nil
 }
@@ -110,6 +121,14 @@ func (f *FirebaseService) VerifyIDToken(ctx context.Context, idToken string) (*a
 		return nil, fmt.Errorf("failed to verify ID token: %v", err)
 	}
 	return token, nil
+}
+
+// GetMessagingClient returns the Firebase messaging client
+func (f *FirebaseService) GetMessagingClient() (*messaging.Client, error) {
+	if f.messaging == nil {
+		return nil, fmt.Errorf("Firebase messaging client not initialized")
+	}
+	return f.messaging, nil
 }
 
 // GetUser gets user information from Firebase Auth

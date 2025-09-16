@@ -188,16 +188,20 @@ func (h *VectorHandler) GetRAGContext(c *gin.Context) {
 	}
 
 	// Build retrieval request
-	ragRequest := services.RetrievalRequest{
-		UserID:      userID,
-		Destination: destination,
-		StartDate:   h.parseDate(startDate),
-		EndDate:     h.parseDate(endDate),
-		Budget:      budget,
-		Travelers:   travelers,
-		Interests:   interests,
-		Preferences: preferences,
-	}
+		layout := "2006-01-02"
+
+		start, _ := time.Parse(layout, h.parseDate(startDate))
+		end, _ := time.Parse(layout, h.parseDate(endDate))
+		ragRequest := services.RetrievalRequest{
+			UserID:      userID,
+			Destination: destination,
+			StartDate:   start,
+			EndDate:     end,
+			Budget:      budget,
+			Travelers:   travelers,
+			Interests:   interests,
+			Preferences: preferences,
+		}
 
 	ragContext, err := h.services.RAGRetriever.RetrieveContext(ctx, ragRequest)
 	if err != nil {
@@ -225,7 +229,7 @@ func (h *VectorHandler) ValidateAvailability(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	// ctx := context.Background()
 
 	if h.services.RAGRetriever == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "RAG retriever not available"})

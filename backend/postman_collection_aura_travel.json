@@ -1,0 +1,120 @@
+{
+    "info": {
+        "name": "AuraTravel-AI - Minimal",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/health",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "health"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Create Trip",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{JWT_TOKEN}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"title\": \"Jaipur long weekend\",\n  \"start_date\": \"2025-11-10\",\n  \"end_date\": \"2025-11-13\",\n  \"budget\": 25000,\n  \"currency\": \"INR\",\n  \"interests\": [\"heritage\", \"food\", \"shopping\"],\n  \"group_size\": 2\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/v1/trips",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "api",
+                        "v1",
+                        "trips"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "AI Plan Trip (RAG + Gemini)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{JWT_TOKEN}}"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"trip_id\": \"<trip-id-from-create>\",\n  \"destination\": \"Jaipur, India\",\n  \"start_date\": \"2025-11-10\",\n  \"end_date\": \"2025-11-13\",\n  \"budget_per_person\": 25000,\n  \"interests\": {\"heritage\":0.9, \"food\":0.7, \"shopping\":0.4},\n  \"language\": \"en-IN\",\n  \"preferences\": {\"transport\":\"public\", \"accommodation\":\"mid\"}\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/v1/ai/plan-trip",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "api",
+                        "v1",
+                        "ai",
+                        "plan-trip"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Validate Availability",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"items\": [\n    {\"type\":\"hotel\",\"id\":\"hotel_123\",\"check_in\":\"2025-11-10\",\"check_out\":\"2025-11-13\"},\n    {\"type\":\"activity\",\"id\":\"amber_fort_guided\",\"date\":\"2025-11-11\"}\n  ]\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/v1/ai/validate-availability",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "api",
+                        "v1",
+                        "ai",
+                        "validate-availability"
+                    ]
+                }
+            }
+        }
+    ]
+}

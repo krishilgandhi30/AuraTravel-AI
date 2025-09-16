@@ -24,7 +24,7 @@ type RAGRetriever struct {
 // NewRAGRetriever creates a new RAG retriever instance
 func NewRAGRetriever(firebase *FirebaseService, gemini *GeminiService, vision *VisionService, mapsAPIKey, weatherKey string) *RAGRetriever {
 	dataConnector := NewDataSourceConnector(mapsAPIKey, weatherKey, "")
-
+	
 	retriever := &RAGRetriever{
 		firebase:      firebase,
 		gemini:        gemini,
@@ -34,10 +34,10 @@ func NewRAGRetriever(firebase *FirebaseService, gemini *GeminiService, vision *V
 		weatherKey:    weatherKey,
 		httpClient:    &http.Client{Timeout: 30 * time.Second},
 	}
-
+	
 	// Initialize validator with self-reference
 	retriever.validator = NewDataValidator(retriever, dataConnector)
-
+	
 	return retriever
 }
 
@@ -204,7 +204,7 @@ func (r *RAGRetriever) RetrieveContext(ctx context.Context, req RetrievalRequest
 			Preferences:       req.Preferences,
 			AvailabilityCheck: true,
 		}
-
+		
 		weights := DefaultRankingWeights()
 
 		// Validate and rank attractions
@@ -461,7 +461,7 @@ func (r *RAGRetriever) getMockAttractions(destination string) []Attraction {
 		},
 		{
 			ID:           "attr_3",
-			Name:         fmt.Sprintf("Local Cuisine Restaurant", destination),
+			Name:         fmt.Sprintf("Local Cuisine Restaurant in %s", destination),
 			Type:         "restaurant",
 			Location:     Location{Address: fmt.Sprintf("Culinary District, %s", destination)},
 			Rating:       4.4,

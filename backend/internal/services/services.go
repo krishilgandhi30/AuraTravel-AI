@@ -17,6 +17,12 @@ type Services struct {
 	DataConnector    *DataSourceConnector
 	CostPredictor    *TravelCostPredictor
 	EmbeddingService *EmbeddingService
+
+	// New real-time services
+	DynamicReplanningService *DynamicReplanningService
+	NotificationService      *NotificationService
+	ItineraryDeliveryService *ItineraryDeliveryService
+	LocalizationService      *LocalizationService
 }
 
 // NewServices initializes and returns all services
@@ -71,19 +77,77 @@ func NewServices() (*Services, error) {
 		log.Printf("Warning: Failed to initialize Embedding service: %v", err)
 	}
 
-	log.Println("Services initialized successfully")
+	// Initialize new real-time services
+	var localizationService *LocalizationService
+	if geminiService != nil && firebaseService != nil {
+		localizationService = NewLocalizationService(geminiService, firebaseService)
+		log.Println("Localization service initialized")
+	}
+
+	var notificationService *NotificationService
+	if firebaseService != nil {
+		notificationService, err = NewNotificationService(firebaseService)
+		if err != nil {
+			log.Printf("Warning: Failed to initialize Notification service: %v", err)
+		} else {
+			log.Println("Notification service initialized")
+		}
+	}
+
+	var itineraryDeliveryService *ItineraryDeliveryService
+	if firebaseService != nil {
+		// Initialize with default configs (these would come from environment variables in production)
+		emailConfig := &EmailConfig{
+			SMTPHost:  "smtp.gmail.com",
+			SMTPPort:  587,
+			Username:  "", // Would be loaded from env
+			Password:  "", // Would be loaded from env
+			FromEmail: "noreply@auratravel.ai",
+			FromName:  "AuraTravel",
+			Enabled:   true,
+		}
+
+		smsConfig := &SMSConfig{
+			TwilioAccountSID:  "", // Would be loaded from env
+			TwilioAuthToken:   "", // Would be loaded from env
+			TwilioPhoneNumber: "", // Would be loaded from env
+			Enabled:           true,
+		}
+
+		storageConfig := &StorageConfig{
+			BasePath:     "./files",
+			BaseURL:      "https://storage.googleapis.com/auratravel-files",
+			CloudStorage: false, // Start with local storage
+			BucketName:   "auratravel-files",
+		}
+
+		itineraryDeliveryService = NewItineraryDeliveryService(emailConfig, smsConfig, storageConfig, firebaseService)
+		log.Println("Itinerary delivery service initialized")
+	}
+
+	var dynamicReplanningService *DynamicReplanningService
+	if ragRetriever != nil && geminiService != nil && vectorDB != nil && firebaseService != nil && notificationService != nil {
+		dynamicReplanningService = NewDynamicReplanningService(ragRetriever, geminiService, vectorDB, firebaseService, notificationService, "default")
+		log.Println("Dynamic replanning service initialized")
+	}
+
+	log.Println("All services initialized successfully")
 
 	return &Services{
-		Gemini:           geminiService,
-		Vertex:           vertexService,
-		Vision:           visionService,
-		BigQuery:         bigQueryService,
-		Firebase:         firebaseService,
-		RAGRetriever:     ragRetriever,
-		VectorDB:         vectorDB,
-		DataConnector:    dataConnector,
-		CostPredictor:    costPredictor,
-		EmbeddingService: embeddingService,
+		Gemini:                   geminiService,
+		Vertex:                   vertexService,
+		Vision:                   visionService,
+		BigQuery:                 bigQueryService,
+		Firebase:                 firebaseService,
+		RAGRetriever:             ragRetriever,
+		VectorDB:                 vectorDB,
+		DataConnector:            dataConnector,
+		CostPredictor:            costPredictor,
+		EmbeddingService:         embeddingService,
+		DynamicReplanningService: dynamicReplanningService,
+		NotificationService:      notificationService,
+		ItineraryDeliveryService: itineraryDeliveryService,
+		LocalizationService:      localizationService,
 	}, nil
 }
 
