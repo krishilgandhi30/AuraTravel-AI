@@ -5,16 +5,18 @@ import (
 	"log"
 )
 
-// Services contains all service dependencies
+// Services holds all service instances
 type Services struct {
-	Gemini        *GeminiService
-	Vertex        *VertexService
-	Vision        *VisionService
-	BigQuery      *BigQueryService
-	Firebase      *FirebaseService
-	RAGRetriever  *RAGRetriever
-	VectorDB      *VectorDatabase
-	DataConnector *DataSourceConnector
+	Gemini           *GeminiService
+	Vertex           *VertexService
+	Vision           *VisionService
+	BigQuery         *BigQueryService
+	Firebase         *FirebaseService
+	RAGRetriever     *RAGRetriever
+	VectorDB         *VectorDatabase
+	DataConnector    *DataSourceConnector
+	CostPredictor    *TravelCostPredictor
+	EmbeddingService *EmbeddingService
 }
 
 // NewServices initializes and returns all services
@@ -60,17 +62,28 @@ func NewServices() (*Services, error) {
 		ragRetriever = NewRAGRetriever(firebaseService, geminiService, visionService, "", "")
 	}
 
+	// Initialize Cost Predictor
+	costPredictor := NewTravelCostPredictor()
+
+	// Initialize Embedding Service
+	embeddingService, err := NewEmbeddingService()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize Embedding service: %v", err)
+	}
+
 	log.Println("Services initialized successfully")
 
 	return &Services{
-		Gemini:        geminiService,
-		Vertex:        vertexService,
-		Vision:        visionService,
-		BigQuery:      bigQueryService,
-		Firebase:      firebaseService,
-		RAGRetriever:  ragRetriever,
-		VectorDB:      vectorDB,
-		DataConnector: dataConnector,
+		Gemini:           geminiService,
+		Vertex:           vertexService,
+		Vision:           visionService,
+		BigQuery:         bigQueryService,
+		Firebase:         firebaseService,
+		RAGRetriever:     ragRetriever,
+		VectorDB:         vectorDB,
+		DataConnector:    dataConnector,
+		CostPredictor:    costPredictor,
+		EmbeddingService: embeddingService,
 	}, nil
 }
 

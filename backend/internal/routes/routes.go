@@ -15,6 +15,7 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 	userHandler := handlers.NewUserHandler(services)
 	tripHandler := handlers.NewTripHandler(services)
 	aiTripHandler := handlers.NewAITripHandler(services)
+	vectorHandler := handlers.NewVectorHandler(services)
 
 	// Public routes
 	public := router.Group("/api/v1")
@@ -81,6 +82,17 @@ func SetupRoutes(router *gin.Engine, services *services.Services) {
 			aiTrips.POST("/optimize/:id", aiTripHandler.OptimizeItinerary)
 			aiTrips.POST("/analyze-image", aiTripHandler.AnalyzeImage)
 			aiTrips.GET("/insights", aiTripHandler.GetTravelInsights)
+			aiTrips.GET("/rag-context", vectorHandler.GetRAGContext)
+			aiTrips.POST("/validate-availability", vectorHandler.ValidateAvailability)
+		}
+
+		// Vector database routes
+		vector := protected.Group("/vector")
+		{
+			vector.POST("/search-attractions", vectorHandler.SearchSimilarAttractions)
+			vector.POST("/search-trips", vectorHandler.SearchSimilarTrips)
+			vector.POST("/store-preferences", vectorHandler.StoreUserPreferences)
+			vector.GET("/predict-cost", vectorHandler.PredictTravelCost)
 		}
 
 		// Booking routes (future implementation)

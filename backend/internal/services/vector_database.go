@@ -16,15 +16,22 @@ import (
 
 // VectorDatabase handles embedding storage and similarity search
 type VectorDatabase struct {
-	firestore *firestore.Client
-	gemini    *GeminiService
+	firestore        *firestore.Client
+	gemini           *GeminiService
+	embeddingService *EmbeddingService
 }
 
 // NewVectorDatabase creates a new vector database instance
 func NewVectorDatabase(firestoreClient *firestore.Client, gemini *GeminiService) *VectorDatabase {
+	embeddingService, err := NewEmbeddingService()
+	if err != nil {
+		log.Printf("Failed to create embedding service: %v", err)
+	}
+
 	return &VectorDatabase{
-		firestore: firestoreClient,
-		gemini:    gemini,
+		firestore:        firestoreClient,
+		gemini:           gemini,
+		embeddingService: embeddingService,
 	}
 }
 
@@ -295,14 +302,20 @@ func (vdb *VectorDatabase) FindSimilarTrips(ctx context.Context, destination str
 
 // generateEmbedding generates an embedding for the given text
 func (vdb *VectorDatabase) generateEmbedding(ctx context.Context, text string) ([]float64, error) {
-	if vdb.gemini == nil {
-		// Return mock embedding if Gemini is not available
+	if vdb.embeddingService == nil {
+		// Fallback to mock embedding if service is not available
+		log.Println("Embedding service not available, using mock embedding")
 		return vdb.generateMockEmbedding(text), nil
 	}
 
-	// For now, use a simple mock embedding
-	// In production, you would call Vertex AI Embedding API or similar
-	return vdb.generateMockEmbedding(text), nil
+	// Use the real embedding service
+	embedding, err := vdb.embeddingService.GenerateEmbedding(ctx, text)
+	if err != nil {
+		log.Printf("Failed to generate embedding, using mock: %v", err)
+		return vdb.generateMockEmbedding(text), nil
+	}
+
+	return embedding, nil
 }
 
 // generateMockEmbedding creates a simple mock embedding based on text

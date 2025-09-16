@@ -175,6 +175,15 @@ export const api = {
             trip_history?: string[]
         }) =>
             apiClient.post('/vector/store-preferences', userProfile),
+
+        predictCost: (params: {
+            destination: string
+            travel_date: string
+            duration?: number
+            travelers?: number
+            budget_preference?: string
+        }) =>
+            apiClient.get('/vector/predict-cost', { params }),
     },
 
     // Recommendations
