@@ -1,8 +1,74 @@
-# AuraTravel AI - Full Stack Travel Planning Application
+<p align="center">
+  <img src="frontend/public/logo.png" alt="AuraTravel AI Logo" width="120" />
+</p>
+
+# AuraTravel AI
+
+<p align="center">
+  <b>AI-powered, real-time, multilingual travel planning platform</b><br>
+  <a href="#quick-start">Quick Start</a> • <a href="#features">Features</a> • <a href="#architecture-overview">Architecture</a> • <a href="#api-reference-selected-endpoints">API</a> • <a href="#contributing">Contribute</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-blue?logo=nextdotjs" />
+  <img src="https://img.shields.io/badge/Go-1.21+-teal?logo=go" />
+  <img src="https://img.shields.io/badge/Google%20AI-Gemini%20%7C%20Vertex%20AI-yellow?logo=googlecloud" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+</p>
+
 
 A comprehensive AI-powered travel planning application built with Next.js frontend and Go backend, leveraging Google AI technologies for intelligent trip recommendations and planning.
 
-## 🏗️ Project Structure
+---
+
+## 🆕 Recent Enhancements (2025)
+
+- 🌐 **Multilingual & Localization**: Full support for multiple languages, locale-aware currency, date, and number formatting, and Gemini-powered translation/localization for itineraries and notifications.
+- 🔔 **Real-Time Notifications**: Push, email, and SMS notifications for trip updates, weather alerts, and dynamic replanning, with device token registration and user preferences.
+- 🗺️ **Itinerary Delivery**: Generate and deliver itineraries in PDF, ICS, JSON, and HTML formats via email, SMS, push, or download, with shareable links and password protection.
+- 🤖 **Dynamic Replanning**: Real-time monitoring and AI-driven replanning of trips based on user preferences, weather, and external events.
+- 🧠 **RAG & Vector Search**: Retrieval Augmented Generation (RAG) with Firestore-backed vector database for personalized recommendations and context-aware planning.
+- 🔒 **Improved Security**: Enhanced JWT/Firebase authentication, user locale preferences, and secure environment variable management.
+- 🛠️ **Robust Error Handling**: Improved backend and frontend error handling, with clear API responses and troubleshooting guidance.
+
+
+---
+
+## ✨ Features
+
+- � **AI-powered trip planning**: Personalized, real-time itineraries using Gemini, Vertex AI, and RAG.
+- 🔔 **Real-time notifications**: Push, email, and SMS updates for trip changes and alerts.
+- 🌐 **Multilingual support**: Localized content, currency, and date formatting.
+- 📱 **Modern UI**: Next.js 14, Tailwind CSS, Framer Motion, and Lucide icons.
+- 🔒 **Secure authentication**: Firebase Auth and JWT.
+- 📊 **Analytics**: BigQuery and Firestore for travel insights.
+- 🗺️ **Shareable itineraries**: PDF, ICS, and web links.
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/auratravel-ai.git
+cd AuraTravel-AI
+
+# 2. Start the frontend
+cd frontend
+npm install
+npm run dev
+# Visit http://localhost:3000
+
+# 3. Start the backend
+cd ../backend
+go mod download
+go run .
+# API at http://localhost:8080
+```
+
+---
+
+## 𞰼�️ Project Structure
 
 ```
 AuraTravel-AI/
@@ -32,6 +98,7 @@ AuraTravel-AI/
 ## 🚀 Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
@@ -41,6 +108,7 @@ AuraTravel-AI/
 - **State Management**: React hooks and context
 
 ### Backend
+
 - **Language**: Go 1.21+
 - **Framework**: Gin HTTP framework
 - **Database**: PostgreSQL with GORM ORM
@@ -52,66 +120,18 @@ AuraTravel-AI/
   - **BigQuery**: Travel data analytics
   - **Firebase**: User management and real-time data
 
-## 🛠️ Installation & Setup
+## 📚 Table of Contents
 
-### Prerequisites
-- Node.js 18+ and npm/yarn
-- Go 1.21+
-- PostgreSQL 12+
-- Google Cloud Project with AI APIs enabled
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend will be available at `http://localhost:3000`
-
-### Backend Setup
-
-1. **Install Dependencies**
-```bash
-cd backend
-go mod download
-```
-
-2. **Environment Configuration**
-Copy `.env` file and update with your credentials:
-```bash
-cp .env .env.local
-# Edit .env.local with your actual API keys and database credentials
-```
-
-3. **Database Setup**
-```bash
-# Install PostgreSQL and create database
-createdb auratravel_db
-
-# The application will auto-migrate tables on startup
-# AuraTravel AI
-
-AuraTravel AI is an end-to-end, AI-powered travel planning platform. It combines a Next.js frontend with a Go (Gin) backend and leverages Google Cloud AI (Gemini, Vertex AI), Cloud Vision, Firestore, and Firebase for authentication and data storage. The system uses a RAG (Retrieval Augmented Generation) approach with a vector database for personalized, real-time itinerary generation.
-
-This README documents how to set up the project locally, architecture notes, where to find core components, environment variables, how to run and test, API endpoints, and special notes about Gemini/RAG/vector DB behavior.
-
----
-
-## Table of Contents
-- [Project layout](#project-layout)
-- [Architecture overview](#architecture-overview)
-- [Prerequisites](#prerequisites)
-- [Local setup (frontend & backend)](#local-setup-frontend--backend)
-  - [Frontend](#frontend)
-  - [Backend](#backend)
-- [Environment variables](#environment-variables)
-- [API reference (selected endpoints)](#api-reference-selected-endpoints)
-- [Gemini, RAG, and Vector DB notes](#gemini-rag-and-vector-db-notes)
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Architecture Overview](#architecture-overview)
+- [Environment Variables](#environment-variables)
+- [API Reference](#api-reference-selected-endpoints)
+- [Gemini, RAG, and Vector DB](#gemini-rag-and-vector-db-notes)
 - [Testing](#testing)
-- [Troubleshooting & common issues](#troubleshooting--common-issues)
-- [Development tips & next steps](#development-tips--next-steps)
+- [Troubleshooting](#troubleshooting--common-issues)
+- [Development Tips](#development-tips--next-steps)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -146,7 +166,7 @@ AuraTravel-AI/
 
 - Node.js 18+ and npm (or yarn)
 - Go 1.21+
-- PostgreSQL (or your preferred DB) for main app data (the repo contains DB wiring, check `internal/database`)
+- Firebase (or your preferred DB) for main app data
 - Google Cloud project with:
   - Vertex AI API
   - Generative Language API (Gemini)
@@ -249,6 +269,7 @@ FIREBASE_PROJECT_ID=your_firebase_project_id
 ```
 
 Notes:
+
 - If `GEMINI_API_KEY` is empty, the backend will use mock Gemini implementations for development.
 - If Google Cloud credentials are missing, embedding generation falls back to deterministic mock embeddings.
 
@@ -318,16 +339,17 @@ go test ./...
 ## Troubleshooting & common issues
 
 - Health check fails:
+
   - Ensure backend is running on the expected port and `.env` variables are loaded.
   - Use `Invoke-RestMethod -Uri "http://localhost:8080/health" -Method GET` in PowerShell.
-
 - Gemini calls failing:
+
   - If `GEMINI_API_KEY` is missing or invalid, the app uses mock Gemini functions. To enable real Gemini calls, set `GEMINI_API_KEY` and ensure your Google IAM permissions are correct.
-
 - Embeddings not generated:
-  - Ensure `GOOGLE_APPLICATION_CREDENTIALS` points to a valid service account JSON with Vertex AI access. Without it, the code uses a mock embedding generator.
 
+  - Ensure `GOOGLE_APPLICATION_CREDENTIALS` points to a valid service account JSON with Vertex AI access. Without it, the code uses a mock embedding generator.
 - Firestore operations failing:
+
   - Ensure `FIREBASE_PROJECT_ID` and service account credentials are set and Firestore is initialized in your GCP project.
 
 ---
@@ -358,10 +380,19 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-If you want, I can also:
+---
 
-- add an example `.env.example` file at the root
-- generate a quick Postman collection for the main endpoints
-- add a short developer checklist for running the RAG + Gemini end-to-end
+## 🙋 FAQ & Gotchas
 
-Tell me which of these you'd like next and I will add them.
+- **Health check fails?** Make sure backend is running and `.env` is set.
+- **Gemini/AI not working?** Set `GEMINI_API_KEY` and Google credentials, or use mock mode for local dev.
+- **Embeddings/Firestore issues?** Check GCP project, service account, and Firestore setup.
+- **Production keys?** Never commit secrets—use environment variables or a secrets manager.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please fork the repo, create a feature branch, and submit a pull request. See [Contributing](#contributing) for details.
+
+---
