@@ -54,3 +54,17 @@ firebase-debug.*.log
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# Go backend
+backend/bin/
+backend/server
+backend/server.exe
+backend/*.test
+backend/auratravel-backend.exe
+backend/auratravel-backend
+backend/coverage.out
+backend/.env
+backend/.env.*
+backend/.vscode/
+backend/.idea/
+backend/.DS_Store
