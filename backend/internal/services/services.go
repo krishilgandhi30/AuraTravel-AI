@@ -7,11 +7,14 @@ import (
 
 // Services contains all service dependencies
 type Services struct {
-	Gemini   *GeminiService
-	Vertex   *VertexService
-	Vision   *VisionService
-	BigQuery *BigQueryService
-	Firebase *FirebaseService
+	Gemini        *GeminiService
+	Vertex        *VertexService
+	Vision        *VisionService
+	BigQuery      *BigQueryService
+	Firebase      *FirebaseService
+	RAGRetriever  *RAGRetriever
+	VectorDB      *VectorDatabase
+	DataConnector *DataSourceConnector
 }
 
 // NewServices initializes and returns all services
@@ -42,14 +45,32 @@ func NewServices() (*Services, error) {
 		log.Printf("Warning: Failed to initialize Firebase service: %v", err)
 	}
 
+	// Initialize Data Source Connector
+	dataConnector := NewDataSourceConnector("", "", "") // Keys will be loaded from config
+
+	// Initialize Vector Database
+	var vectorDB *VectorDatabase
+	if firebaseService != nil && geminiService != nil {
+		vectorDB = NewVectorDatabase(firebaseService.GetFirestoreClient(), geminiService)
+	}
+
+	// Initialize RAG Retriever
+	var ragRetriever *RAGRetriever
+	if firebaseService != nil && geminiService != nil && visionService != nil {
+		ragRetriever = NewRAGRetriever(firebaseService, geminiService, visionService, "", "")
+	}
+
 	log.Println("Services initialized successfully")
 
 	return &Services{
-		Gemini:   geminiService,
-		Vertex:   vertexService,
-		Vision:   visionService,
-		BigQuery: bigQueryService,
-		Firebase: firebaseService,
+		Gemini:        geminiService,
+		Vertex:        vertexService,
+		Vision:        visionService,
+		BigQuery:      bigQueryService,
+		Firebase:      firebaseService,
+		RAGRetriever:  ragRetriever,
+		VectorDB:      vectorDB,
+		DataConnector: dataConnector,
 	}, nil
 }
 

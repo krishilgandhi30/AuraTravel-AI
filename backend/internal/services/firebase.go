@@ -359,6 +359,11 @@ func (f *FirebaseService) BackupUserData(ctx context.Context, userID string) (ma
 	return backup, nil
 }
 
+// GetFirestoreClient returns the Firestore client
+func (f *FirebaseService) GetFirestoreClient() *firestore.Client {
+	return f.firestore
+}
+
 // Shutdown closes the Firebase connections
 func (f *FirebaseService) Shutdown(ctx context.Context) error {
 	if f.firestore != nil {

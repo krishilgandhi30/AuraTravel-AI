@@ -112,6 +112,71 @@ export const api = {
             apiClient.put(`/trips/${tripId}/itinerary`, itineraryData),
     },
 
+    // AI-powered trip planning with RAG
+    ai: {
+        planTrip: (tripData: {
+            destination: string
+            start_date: string
+            end_date: string
+            budget: number
+            travelers: number
+            preferences: Record<string, any>
+            trip_type?: string
+            interests: string[]
+            user_id: string
+        }) =>
+            apiClient.post('/ai/plan-trip', tripData),
+
+        getRecommendations: (params: {
+            user_id?: string
+            budget?: number
+            interests: string[]
+        }) =>
+            apiClient.get('/ai/recommendations', { params }),
+
+        getRagContext: (params: {
+            destination: string
+            user_id?: string
+            start_date: string
+            end_date: string
+            budget: number
+            travelers: number
+            interests: string[]
+            preferences: Record<string, any>
+        }) =>
+            apiClient.post('/ai/rag-context', params),
+
+        validateAvailability: (items: {
+            type: 'attractions' | 'hotels' | 'transportation'
+            data: any[]
+            check_date: string
+        }) =>
+            apiClient.post('/ai/validate-availability', items),
+    },
+
+    // Vector database operations
+    vector: {
+        searchSimilarAttractions: (params: {
+            interests: string[]
+            limit?: number
+        }) =>
+            apiClient.post('/vector/search-attractions', params),
+
+        searchSimilarTrips: (params: {
+            destination: string
+            preferences: Record<string, any>
+            limit?: number
+        }) =>
+            apiClient.post('/vector/search-trips', params),
+
+        storeUserPreferences: (userProfile: {
+            user_id: string
+            preferences: Record<string, any>
+            trip_history?: string[]
+        }) =>
+            apiClient.post('/vector/store-preferences', userProfile),
+    },
+
     // Recommendations
     recommendations: {
         getDestinations: (preferences: any) =>

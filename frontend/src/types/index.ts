@@ -8,6 +8,144 @@ export interface User {
     lastLoginAt?: Date
 }
 
+// RAG-enhanced types
+export interface RAGTripContext {
+    destination: string
+    userProfile?: UserProfile
+    attractions: RAGAttraction[]
+    hotels: RAGHotel[]
+    weather: WeatherForecast
+    localEvents: LocalEvent[]
+    transportation: TransportOption[]
+    similarTrips: Trip[]
+    emtInventory: EMTItem[]
+}
+
+export interface RAGAttraction {
+    id: string
+    name: string
+    type: string
+    location: RAGLocation
+    rating: number
+    priceLevel: number
+    openingHours: string[]
+    description: string
+    tags: string[]
+    available: boolean
+    images?: string[]
+    bookingUrl?: string
+}
+
+export interface RAGHotel {
+    id: string
+    name: string
+    location: RAGLocation
+    rating: number
+    pricePerNight: number
+    amenities: string[]
+    available: boolean
+    bookingUrl?: string
+    images?: string[]
+}
+
+export interface RAGLocation {
+    latitude: number
+    longitude: number
+    address: string
+}
+
+export interface WeatherForecast {
+    current: WeatherCondition
+    forecast: WeatherCondition[]
+}
+
+export interface WeatherCondition {
+    date: string
+    temperature: number
+    description: string
+    humidity: number
+    windSpeed: number
+    icon: string
+}
+
+export interface LocalEvent {
+    id: string
+    name: string
+    location: RAGLocation
+    date: string
+    category: string
+    price: number
+    description: string
+    available: boolean
+}
+
+export interface TransportOption {
+    type: string
+    from: string
+    to: string
+    duration: string
+    price: number
+    available: boolean
+    bookingUrl?: string
+    provider: string
+}
+
+export interface EMTItem {
+    id: string
+    name: string
+    type: string
+    location: RAGLocation
+    available: boolean
+    description: string
+    contact: string
+}
+
+export interface RAGItineraryResponse {
+    destination: string
+    duration: number
+    budget: number
+    travelers: number
+    ai_generated: boolean
+    rag_enhanced: boolean
+    created_at: string
+    weather_info?: {
+        current: WeatherCondition
+        forecast: WeatherCondition[]
+        tips: string[]
+    }
+    recommended_hotels?: Array<{
+        name: string
+        rating: number
+        price_per_night: number
+        availability: boolean
+        booking_url: string
+    }>
+    transportation?: Array<{
+        type: string
+        provider: string
+        price: number
+        availability: boolean
+        booking_url: string
+    }>
+    local_events?: Array<{
+        name: string
+        date: string
+        description: string
+        location: RAGLocation
+        price: number
+    }>
+    emt_services?: Array<{
+        name: string
+        type: string
+        description: string
+        available: boolean
+        contact: string
+    }>
+    tips: string[]
+    data_sources?: string[]
+    [key: string]: any // For day_1, day_2, etc.
+}
+
 // Trip types
 export interface Trip {
     id: string

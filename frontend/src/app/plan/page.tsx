@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -19,8 +19,16 @@ import {
     Heart,
     ChevronDown,
     Plus,
-    X
+    X,
+    Brain,
+    Zap,
+    Database,
+    Sparkles
 } from 'lucide-react'
+import { RAGTripPlanner } from '@/components/RAGTripPlanner'
+import { RAGItineraryDisplay } from '@/components/RAGItineraryDisplay'
+import { RAGTripRequest } from '@/lib/api/rag-service'
+import { RAGItineraryResponse } from '@/types'
 
 interface TripPreferences {
     destination: string
@@ -36,6 +44,10 @@ interface TripPreferences {
 
 export default function PlanPage() {
     const [step, setStep] = useState(1)
+    const [useRAG, setUseRAG] = useState(true)
+    const [showRAGPlanner, setShowRAGPlanner] = useState(false)
+    const [generatedItinerary, setGeneratedItinerary] = useState<RAGItineraryResponse | null>(null)
+
     const [preferences, setPreferences] = useState<TripPreferences>({
         destination: '',
         startDate: '',
@@ -103,9 +115,73 @@ export default function PlanPage() {
         }))
     }
 
+    const convertBudgetToNumber = (budgetString: string): number => {
+        switch (budgetString) {
+            case 'budget': return 1000
+            case 'mid-range': return 2000
+            case 'luxury': return 5000
+            case 'ultra-luxury': return 10000
+            default: return 2000
+        }
+    }
+
+    const createRAGRequest = (): RAGTripRequest => {
+        // Mock user ID - in production, get from auth context
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9)
+
+        return {
+            destination: preferences.destination,
+            start_date: preferences.startDate,
+            end_date: preferences.endDate,
+            budget: convertBudgetToNumber(preferences.budget),
+            travelers: preferences.travelers,
+            preferences: {
+                travelStyle: preferences.travelStyle,
+                accommodation: preferences.accommodation,
+                transportation: preferences.transportation,
+                cultural: preferences.interests.includes('Art & Museums') || preferences.interests.includes('History'),
+                outdoor: preferences.interests.includes('Adventure Sports') || preferences.interests.includes('Nature & Wildlife'),
+                luxury: preferences.budget === 'luxury' || preferences.budget === 'ultra-luxury',
+                budget: preferences.budget === 'budget'
+            },
+            interests: preferences.interests,
+            user_id: userId,
+            trip_type: preferences.travelStyle[0] || 'general'
+        }
+    }
+
+    const handleRAGPlanning = () => {
+        if (!validatePreferences()) return
+        setShowRAGPlanner(true)
+    }
+
+    const handleRAGSuccess = (itinerary: RAGItineraryResponse) => {
+        setGeneratedItinerary(itinerary)
+        setShowRAGPlanner(false)
+    }
+
+    const handleRAGError = (error: string) => {
+        console.error('RAG planning error:', error)
+        // Show error message to user
+    }
+
+    const validatePreferences = (): boolean => {
+        return !!(
+            preferences.destination &&
+            preferences.startDate &&
+            preferences.endDate &&
+            preferences.budget &&
+            preferences.travelers > 0
+        )
+    }
+
     const handleSubmit = async () => {
-        console.log('Submitting trip preferences:', preferences)
-        // Handle trip planning submission
+        if (useRAG) {
+            handleRAGPlanning()
+        } else {
+            console.log('Submitting trip preferences:', preferences)
+            // Handle traditional trip planning submission
+        }
     }
 
     const renderStep1 = () => (
@@ -217,8 +293,8 @@ export default function PlanPage() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleInputChange('budget', option.value)}
                                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${preferences.budget === option.value
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-gray-200 hover:border-primary-300'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-primary-300'
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
@@ -246,8 +322,8 @@ export default function PlanPage() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleArrayToggle('travelStyle', style.id)}
                                 className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${preferences.travelStyle.includes(style.id)
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-gray-200 hover:border-primary-300'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-primary-300'
                                     }`}
                             >
                                 <div className="flex items-center space-x-2">
@@ -285,8 +361,8 @@ export default function PlanPage() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleArrayToggle('interests', interest)}
                                 className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${preferences.interests.includes(interest)
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-gray-200 hover:border-primary-300'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-primary-300'
                                     }`}
                             >
                                 <span className="text-sm font-medium text-gray-900">{interest}</span>
@@ -308,8 +384,8 @@ export default function PlanPage() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleInputChange('accommodation', type.value)}
                                 className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${preferences.accommodation === type.value
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-gray-200 hover:border-primary-300'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-primary-300'
                                     }`}
                             >
                                 <span className="text-sm font-medium text-gray-900">{type.label}</span>
@@ -331,8 +407,8 @@ export default function PlanPage() {
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleInputChange('transportation', option.value)}
                                 className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${preferences.transportation === option.value
-                                        ? 'border-primary-500 bg-primary-50'
-                                        : 'border-gray-200 hover:border-primary-300'
+                                    ? 'border-primary-500 bg-primary-50'
+                                    : 'border-gray-200 hover:border-primary-300'
                                     }`}
                             >
                                 <span className="text-sm font-medium text-gray-900">{option.label}</span>
@@ -374,8 +450,8 @@ export default function PlanPage() {
                         {[1, 2, 3].map((stepNumber) => (
                             <div key={stepNumber} className="flex items-center">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${step >= stepNumber
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-gray-200 text-gray-600'
+                                    ? 'bg-primary-600 text-white'
+                                    : 'bg-gray-200 text-gray-600'
                                     }`}>
                                     {stepNumber}
                                 </div>
@@ -390,6 +466,37 @@ export default function PlanPage() {
                         <div className="text-center">
                             <h1 className="text-3xl font-bold text-gray-900">Plan Your Perfect Trip</h1>
                             <p className="text-gray-600 mt-2">Let AI create a personalized itinerary just for you</p>
+
+                            {/* RAG Toggle */}
+                            <div className="flex items-center justify-center mt-6 space-x-3">
+                                <span className={`text-sm font-medium ${!useRAG ? 'text-gray-900' : 'text-gray-500'}`}>
+                                    Standard Planning
+                                </span>
+                                <motion.button
+                                    onClick={() => setUseRAG(!useRAG)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useRAG ? 'bg-primary-600' : 'bg-gray-200'
+                                        }`}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <motion.span
+                                        className="inline-block h-4 w-4 rounded-full bg-white shadow-lg"
+                                        animate={{ x: useRAG ? 24 : 4 }}
+                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    />
+                                </motion.button>
+                                <span className={`text-sm font-medium ${useRAG ? 'text-gray-900' : 'text-gray-500'}`}>
+                                    Enhanced RAG Planning
+                                </span>
+                            </div>
+                            {useRAG && (
+                                <motion.p
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-xs text-primary-600 mt-2"
+                                >
+                                    Using advanced AI retrieval and real-time data validation
+                                </motion.p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -408,8 +515,8 @@ export default function PlanPage() {
                             onClick={() => setStep(Math.max(1, step - 1))}
                             disabled={step === 1}
                             className={`px-6 py-3 rounded-lg font-semibold ${step === 1
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
                         >
                             Previous

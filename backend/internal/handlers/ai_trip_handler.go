@@ -69,11 +69,51 @@ func (h *AITripHandler) PlanTrip(c *gin.Context) {
 
 	ctx := context.Background()
 
-	// Generate trip plan using Gemini AI
+	// Use RAG for enhanced trip planning
 	var itinerary map[string]interface{}
 	var suggestions []string
+	var ragEnabled bool
 
-	if h.services.Gemini != nil {
+	// Try RAG-enhanced planning first
+	if h.services.RAGRetriever != nil && h.services.Gemini != nil {
+		// Retrieve contextual data
+		ragRequest := services.RetrievalRequest{
+			UserID:      req.UserID,
+			Destination: req.Destination,
+			StartDate:   h.parseDate(req.StartDate),
+			EndDate:     h.parseDate(req.EndDate),
+			Budget:      req.Budget,
+			Travelers:   req.Travelers,
+			Interests:   req.Interests,
+			Preferences: req.Preferences,
+		}
+
+		ragContext, err := h.services.RAGRetriever.RetrieveContext(ctx, ragRequest)
+		if err == nil {
+			// Generate itinerary with RAG context
+			ragItinerary, err := h.services.Gemini.GenerateItineraryWithRAG(ctx, services.ItineraryRequest{
+				Destination: req.Destination,
+				StartDate:   req.StartDate,
+				EndDate:     req.EndDate,
+				Budget:      req.Budget,
+				Travelers:   req.Travelers,
+				Preferences: req.Preferences,
+			}, *ragContext)
+
+			if err == nil {
+				itinerary = ragItinerary
+				ragEnabled = true
+
+				// Extract suggestions from attractions
+				for _, attraction := range ragContext.Attractions {
+					suggestions = append(suggestions, fmt.Sprintf("Visit %s - %s", attraction.Name, attraction.Description))
+				}
+			}
+		}
+	}
+
+	// Fallback to regular AI if RAG fails
+	if itinerary == nil && h.services.Gemini != nil {
 		geminiItinerary, err := h.services.Gemini.GenerateItinerary(ctx, services.ItineraryRequest{
 			Destination: req.Destination,
 			StartDate:   req.StartDate,
@@ -98,6 +138,12 @@ func (h *AITripHandler) PlanTrip(c *gin.Context) {
 	}
 	if len(suggestions) == 0 {
 		suggestions = h.getBasicSuggestions(req.Destination)
+	}
+
+	// Add RAG enhancement indicator
+	if ragEnabled {
+		itinerary["rag_enhanced"] = true
+		itinerary["data_sources"] = []string{"real_attractions", "weather_forecast", "hotel_availability", "transportation_options"}
 	}
 
 	// Create trip in Firestore only
@@ -129,6 +175,7 @@ func (h *AITripHandler) PlanTrip(c *gin.Context) {
 		TripID:      tripID,
 		Title:       trip.Title,
 		Description: fmt.Sprintf("AI-powered %d-day trip to %s", h.calculateDays(req.StartDate, req.EndDate), req.Destination),
+		Itinerary:   itinerary,
 		Budget:      budget,
 		Suggestions: suggestions,
 		CreatedAt:   time.Now(),
